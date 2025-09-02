@@ -50,23 +50,23 @@ const AdventCalendar = () => {
     streak: 5,
     achievements: ['🎨 Первый рисунок', '✂️ Мастер поделок', '🎄 Украшатель']
   });
-
-  const tasks: Task[] = [
+  const [tasks, setTasks] = useState<Task[]>([
     { id: 1, title: "Нарисуй снеговика", description: "Используй цветные карандаши или краски, чтобы нарисовать весёлого снеговика с морковкой-носом!", reward: 15, completed: false, category: 'drawing' },
     { id: 2, title: "Сделай снежинку из бумаги", description: "Сложи белую бумагу и вырежи красивую снежинку. Каждая снежинка уникальна!", reward: 20, completed: false, category: 'craft' },
     { id: 3, title: "Укрась окно", description: "Приклей бумажные снежинки или нарисуй морозные узоры на окне зубной пастой", reward: 25, completed: true, category: 'decoration' },
     { id: 4, title: "Слепи из пластилина ёлочку", description: "Используй зелёный пластилин для ёлки и разноцветный для игрушек", reward: 18, completed: false, category: 'craft' },
     { id: 5, title: "Нарисуй новогоднюю открытку", description: "Создай красивую открытку для мамы и папы с новогодними пожеланиями", reward: 22, completed: false, category: 'drawing' }
-  ];
-
-  const gifts: Gift[] = [
+  ]);
+  const [gifts, setGifts] = useState<Gift[]>([
     { id: 1, name: "Золотая звезда", price: 50, emoji: "⭐", purchased: false },
     { id: 2, name: "Волшебная палочка", price: 80, emoji: "🪄", purchased: false },
     { id: 3, name: "Новогодний венок", price: 35, emoji: "🎄", purchased: false },
     { id: 4, name: "Подарочная коробка", price: 45, emoji: "🎁", purchased: false },
     { id: 5, name: "Праздничный колокольчик", price: 25, emoji: "🔔", purchased: false },
     { id: 6, name: "Снежный шар", price: 60, emoji: "🔮", purchased: false }
-  ];
+  ]);
+
+
 
   const getCurrentDate = () => new Date().getDate();
   const today = getCurrentDate();
@@ -75,25 +75,45 @@ const AdventCalendar = () => {
     if (day <= today && !openedDays.includes(day)) {
       setOpenedDays([...openedDays, day]);
       setSnowflakes(prev => prev + 10);
+      setProfile(prev => ({...prev, totalSnowflakes: prev.totalSnowflakes + 10}));
     }
     setSelectedDay(day);
   };
 
+  const updateProfile = () => {
+    const completedTasks = tasks.filter(t => t.completed).length;
+    const purchasedGifts = gifts.filter(g => g.purchased).length;
+    setProfile(prev => ({
+      ...prev,
+      tasksCompleted: completedTasks,
+      giftsOwned: purchasedGifts
+    }));
+  };
+
   const completeTask = (taskId: number) => {
-    const task = tasks.find(t => t.id === taskId);
-    if (task && !task.completed) {
-      task.completed = true;
-      setSnowflakes(prev => prev + task.reward);
-      setSelectedTask(null);
-    }
+    const updatedTasks = tasks.map(task => {
+      if (task.id === taskId && !task.completed) {
+        setSnowflakes(prev => prev + task.reward);
+        setProfile(prev => ({...prev, totalSnowflakes: prev.totalSnowflakes + task.reward}));
+        return { ...task, completed: true };
+      }
+      return task;
+    });
+    setTasks(updatedTasks);
+    setSelectedTask(null);
+    updateProfile();
   };
 
   const buyGift = (giftId: number) => {
-    const gift = gifts.find(g => g.id === giftId);
-    if (gift && !gift.purchased && snowflakes >= gift.price) {
-      gift.purchased = true;
-      setSnowflakes(prev => prev - gift.price);
-    }
+    const updatedGifts = gifts.map(gift => {
+      if (gift.id === giftId && !gift.purchased && snowflakes >= gift.price) {
+        setSnowflakes(prev => prev - gift.price);
+        return { ...gift, purchased: true };
+      }
+      return gift;
+    });
+    setGifts(updatedGifts);
+    updateProfile();
   };
 
   const renderCalendarDay = (day: number) => {
