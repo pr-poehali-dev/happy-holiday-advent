@@ -22,12 +22,34 @@ interface Gift {
   purchased: boolean;
 }
 
+interface UserProfile {
+  name: string;
+  avatar: string;
+  level: number;
+  totalSnowflakes: number;
+  tasksCompleted: number;
+  giftsOwned: number;
+  streak: number;
+  achievements: string[];
+}
+
 const AdventCalendar = () => {
   const [snowflakes, setSnowflakes] = useState(120);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [openedDays, setOpenedDays] = useState<number[]>([1, 2, 3]);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showShop, setShowShop] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
+  const [profile, setProfile] = useState<UserProfile>({
+    name: 'Маша',
+    avatar: 'img/b663e2d7-0b4d-4d92-8310-90a2c8402993.jpg',
+    level: 3,
+    totalSnowflakes: 285,
+    tasksCompleted: 8,
+    giftsOwned: 2,
+    streak: 5,
+    achievements: ['🎨 Первый рисунок', '✂️ Мастер поделок', '🎄 Украшатель']
+  });
 
   const tasks: Task[] = [
     { id: 1, title: "Нарисуй снеговика", description: "Используй цветные карандаши или краски, чтобы нарисовать весёлого снеговика с морковкой-носом!", reward: 15, completed: false, category: 'drawing' },
@@ -128,24 +150,177 @@ const AdventCalendar = () => {
         {/* Navigation */}
         <div className="flex justify-center gap-4 mb-8">
           <Button
-            onClick={() => setShowShop(false)}
-            className={`rounded-full px-6 py-2 ${!showShop ? 'bg-christmas-red hover:bg-red-700' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'}`}
+            onClick={() => {setShowShop(false); setShowProfile(false);}}
+            className={`rounded-full px-6 py-2 ${!showShop && !showProfile ? 'bg-christmas-red hover:bg-red-700' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'}`}
           >
             <Icon name="Calendar" size={20} />
             Календарь
           </Button>
           <Button
-            onClick={() => setShowShop(true)}
+            onClick={() => {setShowShop(true); setShowProfile(false);}}
             className={`rounded-full px-6 py-2 ${showShop ? 'bg-christmas-green hover:bg-green-700' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'}`}
           >
             <Icon name="Store" size={20} />
             Магазин подарков
           </Button>
+          <Button
+            onClick={() => {setShowProfile(true); setShowShop(false);}}
+            className={`rounded-full px-6 py-2 ${showProfile ? 'bg-christmas-blue hover:bg-blue-700' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'}`}
+          >
+            <Icon name="User" size={20} />
+            Профиль
+          </Button>
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto">
-        {!showShop ? (
+        {showProfile ? (
+          /* Profile Section */
+          <div className="space-y-6">
+            {/* Profile Header */}
+            <Card className="animate-scale-in">
+              <CardContent className="pt-6">
+                <div className="flex flex-col md:flex-row items-center gap-6">
+                  <div className="relative">
+                    <img 
+                      src={profile.avatar} 
+                      alt="Аватар" 
+                      className="w-24 h-24 rounded-full border-4 border-christmas-gold shadow-lg"
+                    />
+                    <div className="absolute -bottom-2 -right-2 bg-christmas-blue text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm">
+                      {profile.level}
+                    </div>
+                  </div>
+                  <div className="text-center md:text-left flex-1">
+                    <h2 className="text-3xl font-bold text-christmas-red mb-2">Привет, {profile.name}! 👋</h2>
+                    <p className="text-gray-600 mb-4">Уровень {profile.level} • Творческий мастер</p>
+                    <div className="flex flex-wrap justify-center md:justify-start gap-4">
+                      <div className="bg-blue-50 rounded-lg px-4 py-2">
+                        <div className="text-2xl font-bold text-christmas-blue">{profile.totalSnowflakes}</div>
+                        <div className="text-sm text-gray-600">❄️ Снежинок собрано</div>
+                      </div>
+                      <div className="bg-green-50 rounded-lg px-4 py-2">
+                        <div className="text-2xl font-bold text-christmas-green">{profile.tasksCompleted}</div>
+                        <div className="text-sm text-gray-600">📝 Заданий выполнено</div>
+                      </div>
+                      <div className="bg-yellow-50 rounded-lg px-4 py-2">
+                        <div className="text-2xl font-bold text-christmas-gold">{profile.streak}</div>
+                        <div className="text-sm text-gray-600">🔥 Дней подряд</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Progress & Achievements */}
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Progress Card */}
+              <Card className="animate-fade-in">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-christmas-green">
+                    <Icon name="TrendingUp" size={24} />
+                    Прогресс
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div>
+                      <div className="flex justify-between mb-2">
+                        <span className="text-sm font-medium">До следующего уровня</span>
+                        <span className="text-sm text-gray-600">75%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="bg-christmas-blue h-2 rounded-full" style={{width: '75%'}}></div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between mb-2">
+                        <span className="text-sm font-medium">Творческие задания</span>
+                        <span className="text-sm text-gray-600">8/15</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="bg-christmas-green h-2 rounded-full" style={{width: '53%'}}></div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between mb-2">
+                        <span className="text-sm font-medium">Дни календаря</span>
+                        <span className="text-sm text-gray-600">3/25</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="bg-christmas-red h-2 rounded-full" style={{width: '12%'}}></div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Achievements Card */}
+              <Card className="animate-fade-in">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-christmas-gold">
+                    <Icon name="Award" size={24} />
+                    Достижения
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {profile.achievements.map((achievement, index) => (
+                      <div key={index} className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
+                        <div className="text-2xl">
+                          {achievement.split(' ')[0]}
+                        </div>
+                        <div className="font-medium text-gray-700">
+                          {achievement.split(' ').slice(1).join(' ')}
+                        </div>
+                      </div>
+                    ))}
+                    <div className="flex items-center gap-3 p-2 bg-gray-100 rounded-lg opacity-50">
+                      <div className="text-2xl">🏆</div>
+                      <div className="font-medium text-gray-500">Мастер календаря</div>
+                      <div className="text-xs text-gray-400 ml-auto">Скоро...</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Statistics */}
+            <Card className="animate-fade-in">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-christmas-red">
+                  <Icon name="BarChart3" size={24} />
+                  Статистика активности
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center p-4 bg-pink-50 rounded-lg">
+                    <div className="text-3xl mb-2">🎨</div>
+                    <div className="text-2xl font-bold text-pink-600">5</div>
+                    <div className="text-sm text-gray-600">Рисунков</div>
+                  </div>
+                  <div className="text-center p-4 bg-blue-50 rounded-lg">
+                    <div className="text-3xl mb-2">✂️</div>
+                    <div className="text-2xl font-bold text-blue-600">3</div>
+                    <div className="text-sm text-gray-600">Поделок</div>
+                  </div>
+                  <div className="text-center p-4 bg-purple-50 rounded-lg">
+                    <div className="text-3xl mb-2">🎀</div>
+                    <div className="text-2xl font-bold text-purple-600">2</div>
+                    <div className="text-sm text-gray-600">Украшений</div>
+                  </div>
+                  <div className="text-center p-4 bg-green-50 rounded-lg">
+                    <div className="text-3xl mb-2">🎁</div>
+                    <div className="text-2xl font-bold text-green-600">{profile.giftsOwned}</div>
+                    <div className="text-sm text-gray-600">Подарков</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        ) : !showShop ? (
           <>
             {/* Calendar Grid */}
             <div className="grid grid-cols-5 md:grid-cols-7 gap-4 mb-8 place-items-center">
